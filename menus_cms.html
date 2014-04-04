@@ -10,30 +10,60 @@
 <body>
 <div class="container">
 
-	<div id="ctn_menus" class="table-responsive">
-		<table id="tbl_menus" class="table table-hover table-striped table-bordered">
-			<thead>
-				<tr id="colonnes">
-				  <th>#</th>
-				  <th>Version</th>
-				  <th>Langue</th>
-				  <th>Publié</th>
-				  <th>Action</th>
-				</tr>
-			</thead>
-			<tbody>
-				
-			</tbody>
-		</table>
-		<button id="btn_create_menu" class="btn btn-default" type="button">Ajouter</button>
+
+
+
+
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+
+		<form class="navbar-form navbar-left" role="search">
+			<button id="add_item" type="button" class="btn btn-default ">Ajouter</button>
+  			<div class="form-group">
+  				<input id="txt_item" type="text" class="form-control"/>
+				<select id="lst_items" class="form-control"></select>
+			</div>
+
+		</form>
+		<button id="cancel" type="button" class="btn btn-default navbar-btn">Annuler</button>
+		<button id="enregistrer" type="button" class="btn btn-default navbar-btn btn_insertion_bd">Enregistrer</button>
+		<button id="publier" type="button" class="btn btn-default navbar-btn btn_insertion_bd">Publier</button>
 	</div>
+	<div class="panel-body">
+
+		<ul class="nav nav-tabs">
+			<li id="li_structure" class="active options"><a href id="l_structure" class="btn">visualiser</a></li>
+  			<li id="li_organiser" class="options"><a href id="l_organiser" class="btn">organiser</a></li>
+  			<li id="li_modifier" class="options"><a href id="l_modifier" class="btn">modifier</a></li>
+  			<li id="li_supprimer" class="options"><a href id="l_supprimer" class="btn">supprimer</a></li>
+		</ul>
+
+		<div id="panel_structure" class="panel panel-default">
+		  <div class="panel-body">
+		    <ul id = "menu_container" class="list-group">
+			</ul>
+		  </div>
+		</div>
+
+
+		<div id="panel_editable" class="panel panel-default hidden">
+		  <div class="panel-body">
+		  	
+  			<ul id="menu_container_editable" class="list-group">
+			</ul>
+
+		  </div>
+		</div>
+
+
+
+		
+	</div>
+</div>
 
 </div>
 
-	
-
-
-<menu class="component" id="menuPrincipal">
 </body>
 <footer>
 	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
