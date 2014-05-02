@@ -4,77 +4,81 @@
 //////////////////
 
 function Item(){
-	this.key = jq.now() + Math.random().toString(36).substr(2); //jq.now() + Math.random().toString(36).substr(2)
-	this.ordre; //int
-	this.parent = null; //Item
-	this.children = new Array(); //Array[]
-	this.txt; //string
+
+	var that = this;
+
+	that.key = jq.now() + Math.random().toString(36).substr(2); //jq.now() + Math.random().toString(36).substr(2)
+	that.ordre; //int
+	that.parent = null; //Item
+	that.children = new Array(); //Array[]
+	that.txt; //string
 
 	//SETTERS
-	this.set_key = function(key){
-		this.key = key;
+	that.set_key = function(key){
+		that.key = key;
 	}
 
-	this.set_ordre = function(ordre){
-		this.ordre = ordre;
+	that.set_ordre = function(ordre){
+		that.ordre = ordre;
 	}
 
-	this.set_txt = function(txt){
-		this.txt = txt;
+	that.set_txt = function(txt){
+		that.txt = txt;
 	}
 
 
 
 
 	//GETTERS
-	this.get_key = function(){
-		return this.key;
+	that.get_key = function(){
+		return that.key;
 	}
 
-	this.get_ordre = function(){
-		return this.ordre;
+	that.get_ordre = function(){
+		return that.ordre;
 	}
 
-	this.get_parent = function(){
-		return this.parent;
+	that.get_parent = function(){
+		return that.parent;
 	}
 
-	this.get_txt = function(){
-		return this.txt;
+	that.get_txt = function(){
+		return that.txt;
 	}
 
-	this.get_nb_children = function(){
-		return this.children.length;
+	that.get_nb_children = function(){
+		return that.children.length;
 	}
 
 	//Actions sur le tableau de children
-	this.push = function(item){
-		if(!(item instanceof Item) || (this.parent == item))
-			return;
-		this.children.push(item);
-		item.parent = this;
+	that.push = function(item){
+		if(!(item instanceof Item) || (that.parent == item))
+			return false;
+		that.children.push(item);
+		item.parent = that;
 
 		//On met l'ordre de l'item à jour
-		item.ordre = this.children.length;
+		item.ordre = that.children.length;
+		return true;
 	}
 
-	this.pop = function(){
-		return this.children.pop();
+	that.pop = function(){
+		return that.children.pop();
 	}
 
-	this.get = function(key){
+	that.get = function(key){
 		var i = 0;
 		var k = null;
 
 		//Pour tout enfant
-		for(; i < this.children.length; i++){
+		for(; i < that.children.length; i++){
 
 			//Si l'enfant[i] a la clé on le retourne
-			if(this.children[i].key == key){
-				return this.children[i];
+			if(that.children[i].key == key){
+				return that.children[i];
 			}
 			else{ //Sinon on cherche parmi les petits children
-				if( (k = this.children[i].get(key)) != null){
+				if( (k = that.children[i].get(key)) != null){
 					return k;
 				}
 			}
@@ -83,53 +87,56 @@ function Item(){
 		return null;
 	}
 
+	that.last_child = function(){
+		return that.children[that.children.length-1];
+	}
 
 	//Méthodes diverses
 
-	this.clone = function(){
+	that.clone = function(){
 
 		var i;
 		var it = new Item();
 
-		it.set_txt(this.txt);
-		it.parent = this.parent;
-		it.set_ordre(this.ordre);
-		it.set_key(this.key);
+		it.set_txt(that.txt);
+		it.parent = that.parent;
+		it.set_ordre(that.ordre);
+		it.set_key(that.key);
 
-		for(i=0; i<this.children.length; ++i){
-			it.children.push(this.children[i]);
+		for(i=0; i<that.children.length; ++i){
+			it.children.push(that.children[i]);
 		}
 
 		return it;
 	}
 
-	this.to_json = function(){
+	that.to_json = function(){
 		var i;
 		var json = new Object();
-		json.key = this.key;
-		json.txt = this.txt;
+		json.key = that.key;
+		json.txt = that.txt;
 
 
-		if(this.parent != null)
-			json.parent = this.parent.get_key();
+		if(that.parent != null)
+			json.parent = that.parent.get_key();
 		else
 			json.parent = -1;
-		json.ordre = this.ordre;
+		json.ordre = that.ordre;
 		json.children = [];
 
-		for(i=0; i<this.children.length; ++i){
-			json.children.push(this.children[i].to_json());
+		for(i=0; i<that.children.length; ++i){
+			json.children.push(that.children[i].to_json());
 		}
 		return json;
 	}
 
-	this.from_json = function(json){
+	that.from_json = function(json){
 		var it = Item.prototype.create_from_json(json);
-		this.key = it.key;
-		this.ordre = it.ordre;
-		this.txt = it.txt;
-		this.parent = it.parent;
-		this.children = it.children;
+		that.key = it.key;
+		that.ordre = it.ordre;
+		that.txt = it.txt;
+		that.parent = it.parent;
+		that.children = it.children;
 	}
 };
 

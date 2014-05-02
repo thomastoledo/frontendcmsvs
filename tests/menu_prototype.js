@@ -4,112 +4,126 @@
 //////////////////
 
 function Menu(){
-	this.key = jq.now() + Math.random().toString(36).substr(2); //jq.now() + Math.random().toString(36).substr(2)
-	this.url; //string
-	this.release; //string
-	this.published = false; //bool
-	this.language; //string
-	this.items = new Array(); //Array[]
-	this.last_edit; //date
+
+	var that = this;
+
+	that.key = jq.now() + Math.random().toString(36).substr(2); //jq.now() + Math.random().toString(36).substr(2)
+	that.url; //string
+	that.release; //string
+	that.published = false; //bool
+	that.language; //string
+	that.children = new Array(); //Array[]
+	that.last_edit; //date
 
 	//SETTERS
-	this.set_key = function(key){
-		this.key = key;
+	that.set_key = function(key){
+		that.key = key;
 	}
 
-	this.set_url = function(url){
-		this.url = url;
+	that.set_url = function(url){
+		that.url = url;
 	}
 
-	this.set_release = function(release){
-		this.release = release;
+	that.set_release = function(release){
+		that.release = release;
 	}
 
-	this.set_published = function(published){
-		this.published = published;
+	that.set_published = function(published){
+		that.published = published;
 	}
 
-	this.set_language = function(language) {
-		this.language = language;
+	that.set_language = function(language) {
+		that.language = language;
 	}
 
-	this.set_last_edit = function(last_edit){
-		this.last_edit = last_edit;
+	that.set_last_edit = function(last_edit){
+		that.last_edit = last_edit;
 	}
 
 	//GETTERS
-	this.get_key = function(){
-		return this.key;
+	that.get_key = function(){
+		return that.key;
 	}
 
-	this.get_url = function(){
-		return this.url;
+	that.get_url = function(){
+		return that.url;
 	}
 
-	this.get_release = function(){
-		return this.release;
+	that.get_release = function(){
+		return that.release;
 	}
 
-	this.get_published = function(){
-		return this.published;
+	that.get_published = function(){
+		return that.published;
 	}
 
-	this.get_language = function(){
-		return this.language;
+	that.get_language = function(){
+		return that.language;
 	}
 
-	this.get_last_edit = function(){
-		return this.last_edit;
+	that.get_last_edit = function(){
+		return that.last_edit;
 	}
 
-	this.get_nb_items = function(){
-		return this.items.length;
+	that.get_nb_children = function(){
+		return that.children.length;
 	}
 
 	//Actions sur le tableau de children
-	this.push = function(item, parent){
+	that.push = function(item, parent){
 
+		var par;
+		var res = false;
 		//Si item n'est pas de type Item
 		if(!(item instanceof Item))
-			return;
+			return res;
 
 		//si le parent est null, l'item est à la racine
-		if(parent == null){
-			this.items.push(item);
+		if((parent == null) || (parent == that)){
+			that.children.push(item);
 			item.parent = null;
 			//On met l'ordre de l'item à jour
-			item.ordre = this.items.length-1;
+			item.ordre = that.children.length-1;
+			res = true;
 		}else{
 			//Si le parent n'est pas null, il faut que ce soit une instance d'Item
 			if(parent instanceof Item){
 				parent.push(item);
 				//On met l'ordre de l'item à jour
-				item.ordre = this.items.length-1;
-			}else{ //Sinon on sort de la fonction, le push ne réussit pas
-				return;
+				item.ordre = that.children.length-1;
+				res = true;
+
+			}else{ //Sinon le parent est peut-être une clé
+				//on essaye de récupérer l'item
+				par = that.get(parent);
+				if(par != null){
+					par.push(item);
+					res = true;
+				}
 			}
 		}
 
+		return res;
 
 	}
 
-	this.pop = function(){
-		return this.items.pop();
+	that.pop = function(){
+		return that.children.pop();
 	}
 
-	this.get = function(key){
+	that.get = function(key){
 		var i = 0;
 		var k = null;
 
 		//Pour tout enfant
-		for(; i < this.items.length; i++){
+		for(; i < that.children.length; i++){
 
 			//Si l'enfant[i] a la clé on le retourne
-			if(this.items[i].key == key){
-				return this.items[i];
+			if(that.children[i].key == key){
+				return that.children[i];
 			}
 			else{ //Sinon on cherche parmi les petits children
-				if( (k = this.items[i].get(key)) != null){
+				if( (k = that.children[i].get(key)) != null){
 					return k;
 				}
 			}
@@ -118,51 +132,54 @@ function Menu(){
 		return null;
 	}
 
+	that.last_child= function(){
+		return that.children[that.children.length-1];
+	}
 
 	//Méthodes diverses
 
-	this.clone = function(){
+	that.clone = function(){
 
 		var i;
 		var menu = new menu();
 
-		menu.set_key(this.key);
-		menu.set_url(this.url);
-		menu.set_release(this.release);
-		menu.set_published(this.published);
-		menu.set_language(this.language);
-		for(i=0; i<this.items.length; ++i){
-			menu.items.push(this.items[i]);
+		menu.set_key(that.key);
+		menu.set_url(that.url);
+		menu.set_release(that.release);
+		menu.set_published(that.published);
+		menu.set_language(that.language);
+		for(i=0; i<that.children.length; ++i){
+			menu.children.push(that.children[i]);
 		}
 
 		return menu;
 	}
 
-	this.to_json = function(){
+	that.to_json = function(){
 		var i;
 		var json = new Object();
-		json.key = this.key;
-		json.url = this.url;
-		json.release = this.release;
-		json.published = this.published;
-		json.language = this.language;
+		json.key = that.key;
+		json.url = that.url;
+		json.release = that.release;
+		json.published = that.published;
+		json.language = that.language;
 
-		json.items = [];
+		json.children = [];
 
-		for(i=0; i<this.items.length; ++i){
-			json.items.push(this.items[i].to_json());
+		for(i=0; i<that.children.length; ++i){
+			json.children.push(that.children[i].to_json());
 		}
 		return json;
 	}
 
-	this.from_json = function(json){
+	that.from_json = function(json){
 		var menu = Menu.prototype.create_from_json(json);
-		this.key = menu.key;
-		this.url = menu.url;
-		this.release = menu.release;
-		this.published = menu.published;
-		this.language = menu.language;
-		this.items = menu.items;
+		that.key = menu.key;
+		that.url = menu.url;
+		that.release = menu.release;
+		that.published = menu.published;
+		that.language = menu.language;
+		that.children = menu.children;
 	}
 };
 
@@ -188,8 +205,8 @@ Menu.prototype.create_from_json = function(json) {
 	menu.language = json.language;
 
 
-	for(i=0; i<json.items.length; ++i){
-		menu.push(Item.prototype.create_from_json(json.items[i]));
+	for(i=0; i<json.children.length; ++i){
+		menu.push(Item.prototype.create_from_json(json.children[i]));
 	}
 	return menu;
 };
