@@ -177,6 +177,66 @@ function GestionnaireMenu(){
 
 	}
 
+	//Récupérer le menu du backend
+	//[in/out] menu : variable de type Menu qui va recevoir le message du backend
+	//return : true si la récupération a réussi, false sinon
+	that.recup_menu = function(menu){
+
+		var res = false;
+		//Si menu n'est pas de type Menu
+		if(!(menu instanceof Menu))
+			return res;
+
+		jq.ajax({
+			url : 'http://localhost:8080',//TODO: RENSEIGNER URL
+			type : 'GET',
+			dataType : 'json',
+			data : '',
+			contentType : "application/json; charset=utf-8",
+			traditional : true,
+			success : function(msg) {
+			 	//Menu.prototype.from_json retourne true en cas de succès
+			 	//et false si la récupération a échoué
+				res = menu.from_json(msg);
+			},
+			error : function(msg) {
+				res = false;
+			},
+		});
+		return res;
+	}
+
+	//Render le menu en mode structure
+	that.render_menu = function(menu) {
+
+		var i;
+		var it;
+		var parent;
+
+		//Si menu n'est pas de type Menu ou de type Item
+		if(!(menu instanceof Menu) || !(menu instanceof Item))
+			return;
+
+		for(i=0; i<menu.get_nb_children(); ++i){
+			it = menu.get_at(i);
+
+			//On récupère l'ID du parent
+			parent = (it.parent != null ? it.parent : that.container_structure.id);
+
+			//Soit on crée une nouvelle liste soit on insère un nouvel élément
+			if(it.get_ordre() == 0){
+				jq("#" + parent).append("<ul><li class=' item'  id='" + it.get_key() + "'>" + it.get_txt() + "</li></ul>");
+			}
+			else{
+				jq("#" + parent + ">ul").append("<li class='item'  id='" + it.get_key() + "'>" + it.get_txt() + "</li>");
+			}
+			//On fait le même traitement pour les enfants
+			that.render_menu(it);
+
+		}
+
+	};
+
 	//Charger le menu
 	//On charge par défaut le dernier menu de la langue sur laquelle l'utilisateur travaillait
 	that.load = function(langue){
@@ -201,7 +261,14 @@ function GestionnaireMenu(){
 
 		//On crée le menu
 		that.menu = new Menu();
-		//TODO : récupérer le menu avec le backend
+		//On récupère le menu avec le backend : true si ça a fonctionné
+		//false si ça a échoué
+		if(!that.recup_menu(that.menu)){
+			alert("Échec lors de la récupération du menu");
+		}
+
+		//On render le menu en html
+		that.render_menu(that.menu);
 	}
 
 };

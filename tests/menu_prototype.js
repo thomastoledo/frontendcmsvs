@@ -14,6 +14,7 @@ function Menu(){
 	that.language; //string
 	that.children = new Array(); //Array[]
 	that.last_edit; //date
+	that.type = "Menu"; //le type Menu
 
 	//SETTERS
 	that.set_key = function(key){
@@ -132,6 +133,13 @@ function Menu(){
 		return null;
 	}
 
+	that.get_at = function(index){
+		if(index<0 || index >= that.children.length)
+			return null;
+
+		return that.children[index];
+	}
+	
 	that.last_child= function(){
 		return that.children[that.children.length-1];
 	}
@@ -169,22 +177,28 @@ function Menu(){
 		for(i=0; i<that.children.length; ++i){
 			json.children.push(that.children[i].to_json());
 		}
-		return json;
+		return JSON.stringify(json);
 	}
+
 
 	that.from_json = function(json){
 		var menu = Menu.prototype.create_from_json(json);
+
+		if(menu == null)
+			return false;
 		that.key = menu.key;
 		that.url = menu.url;
 		that.release = menu.release;
 		that.published = menu.published;
 		that.language = menu.language;
 		that.children = menu.children;
+		return true;
 	}
 };
 
 Menu.prototype.create_from_json = function(json) {
 	var menu = new Menu();
+	var item;
 	var i;
 
 	//TODO : contrôles pour vérifier que l'objet JSON peut bien donner un Menu
@@ -206,7 +220,14 @@ Menu.prototype.create_from_json = function(json) {
 
 
 	for(i=0; i<json.children.length; ++i){
-		menu.push(Item.prototype.create_from_json(json.children[i]));
+		item = Item.prototype.create_from_json(json.children[i]);
+
+		if(item == null){
+			return null;
+		}
+		else{
+			menu.push(item);
+		}
 	}
 	return menu;
 };

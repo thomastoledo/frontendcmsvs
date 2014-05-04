@@ -12,7 +12,8 @@ function Item(){
 	that.parent = null; //Item
 	that.children = new Array(); //Array[]
 	that.txt; //string
-
+	that.type = "Item";
+	
 	//SETTERS
 	that.set_key = function(key){
 		that.key = key;
@@ -87,6 +88,13 @@ function Item(){
 		return null;
 	}
 
+	that.get_at = function(index){
+		if(index<0 || index >= that.children.length)
+			return null;
+
+		return that.children[index];
+	}
+
 	that.last_child = function(){
 		return that.children[that.children.length-1];
 	}
@@ -127,11 +135,16 @@ function Item(){
 		for(i=0; i<that.children.length; ++i){
 			json.children.push(that.children[i].to_json());
 		}
-		return json;
+		return JSON.stringify(json);
 	}
 
 	that.from_json = function(json){
 		var it = Item.prototype.create_from_json(json);
+
+		if(it == null){
+			return false;
+		}
+
 		that.key = it.key;
 		that.ordre = it.ordre;
 		that.txt = it.txt;
@@ -142,6 +155,7 @@ function Item(){
 
 Item.prototype.create_from_json = function(json) {
 	var it = new Item();
+	var chld;
 	var i;
 
 	//TODO : contrôles pour vérifier que l'objet JSON peut bien donner un Item
@@ -163,7 +177,13 @@ Item.prototype.create_from_json = function(json) {
 		it.parent = null;
 
 	for(i=0; i<json.children.length; ++i){
-		it.push(Item.prototype.create_from_json(json.children[i]));
+		chld = Item.prototype.create_from_json(json.children[i]);
+		if(chld != null){
+			it.push();
+		}
+		else{
+			return null;
+		}
 	}
 	return it;
 };
