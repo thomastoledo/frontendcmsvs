@@ -5,6 +5,8 @@
 
 //@brief : sert d'interface entre les éléments du DOM de la page et le Menu
 
+
+
 function GestionnaireMenu(){
 
 	var that = this;
@@ -167,7 +169,10 @@ function GestionnaireMenu(){
 	that.save = function(){
 		var date = new Date();
 		that.menu.release = date.getFullYear()  + "-" + date.getMonth() + "-" +
-		 date.getDay() + "-" + date.getHours() + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds();
+			date.getDay() + "-" + date.getHours() + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds();
+		//TODO : variabiliser la langue
+
+		that.menu.lang = "EN";
 		var to_send =  JSON.stringify(that.menu.to_json());
 		jq.ajax({
 			url : 'http://localhost:8080/component/' + that.menu.key,
