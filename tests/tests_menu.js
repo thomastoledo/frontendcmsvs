@@ -15,13 +15,13 @@ menu.set_key(jq.now() + Math.random().toString(36).substr(2));
 menu.set_url("http://www.virtualsensitive.com/fr");
 menu.set_release("1.0");
 menu.set_published(false);
-menu.set_language("FR");
+menu.set_lang("FR");
 
 jq("#results").append("<p>Nouvelle clé : " + menu.get_key() +"</p>");
 jq("#results").append("<p>Nouvelle URL : " + menu.get_url() +"</p>");
 jq("#results").append("<p>Nouvelle release : " + menu.get_release() +"</p>");
 jq("#results").append("<p>Publié : " + menu.get_published() +"</p>");
-jq("#results").append("<p>Langage : " + menu.get_language() +"</p>");
+jq("#results").append("<p>Langage : " + menu.get_lang() +"</p>");
 jq("#results").append("<p>Nombre d'items : " + menu.get_published() +"</p>");
 
 

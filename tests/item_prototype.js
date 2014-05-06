@@ -12,7 +12,7 @@ function Item(){
 	that.parent = null; //Item
 	that.children = new Array(); //Array[]
 	that.txt; //string
-	that.type = "Item";
+	that.type = "item";
 	
 	//SETTERS
 	that.set_key = function(key){
@@ -59,7 +59,7 @@ function Item(){
 		item.parent = that;
 
 		//On met l'ordre de l'item à jour
-		item.ordre = that.children.length;
+		item.ordre = that.children.length-1;
 		return true;
 	}
 
@@ -123,7 +123,7 @@ function Item(){
 		var json = new Object();
 		json.key = that.key;
 		json.txt = that.txt;
-
+		json.type = that.type;
 
 		if(that.parent != null)
 			json.parent = that.parent.get_key();
@@ -135,7 +135,7 @@ function Item(){
 		for(i=0; i<that.children.length; ++i){
 			json.children.push(that.children[i].to_json());
 		}
-		return JSON.stringify(json);
+		return json;
 	}
 
 	that.from_json = function(json){
@@ -179,7 +179,7 @@ Item.prototype.create_from_json = function(json) {
 	for(i=0; i<json.children.length; ++i){
 		chld = Item.prototype.create_from_json(json.children[i]);
 		if(chld != null){
-			it.push();
+			it.push(chld);
 		}
 		else{
 			return null;

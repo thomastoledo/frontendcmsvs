@@ -11,10 +11,10 @@ function Menu(){
 	that.url; //string
 	that.release; //string
 	that.published = false; //bool
-	that.language; //string
+	that.lang; //string
 	that.children = new Array(); //Array[]
 	that.last_edit; //date
-	that.type = "Menu"; //le type Menu
+	that.type = "menu"; //le type Menu
 
 	//SETTERS
 	that.set_key = function(key){
@@ -33,8 +33,8 @@ function Menu(){
 		that.published = published;
 	}
 
-	that.set_language = function(language) {
-		that.language = language;
+	that.set_lang = function(lang) {
+		that.lang = lang;
 	}
 
 	that.set_last_edit = function(last_edit){
@@ -58,8 +58,8 @@ function Menu(){
 		return that.published;
 	}
 
-	that.get_language = function(){
-		return that.language;
+	that.get_lang = function(){
+		return that.lang;
 	}
 
 	that.get_last_edit = function(){
@@ -155,7 +155,7 @@ function Menu(){
 		menu.set_url(that.url);
 		menu.set_release(that.release);
 		menu.set_published(that.published);
-		menu.set_language(that.language);
+		menu.set_lang(that.lang);
 		for(i=0; i<that.children.length; ++i){
 			menu.children.push(that.children[i]);
 		}
@@ -170,27 +170,27 @@ function Menu(){
 		json.url = that.url;
 		json.release = that.release;
 		json.published = that.published;
-		json.language = that.language;
+		json.lang = that.lang;
+		json.type = that.type;
 
 		json.children = [];
 
 		for(i=0; i<that.children.length; ++i){
 			json.children.push(that.children[i].to_json());
 		}
-		return JSON.stringify(json);
+		return json;
 	}
-
 
 	that.from_json = function(json){
 		var menu = Menu.prototype.create_from_json(json);
 
 		if(menu == null)
 			return false;
-		that.key = menu.key;
+		that.key = menu.key;	
 		that.url = menu.url;
 		that.release = menu.release;
 		that.published = menu.published;
-		that.language = menu.language;
+		that.lang = menu.lang;
 		that.children = menu.children;
 		return true;
 	}
@@ -216,7 +216,7 @@ Menu.prototype.create_from_json = function(json) {
 	menu.url = json.url;
 	menu.release = json.release;
 	menu.published = json.published;
-	menu.language = json.language;
+	menu.lang = json.lang;
 
 
 	for(i=0; i<json.children.length; ++i){

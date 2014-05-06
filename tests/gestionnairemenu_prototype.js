@@ -24,8 +24,8 @@ function GestionnaireMenu(){
 	that.lst_items = jq("#lst_items"); //node
 	that.suff_lst = "_lst"; //suffixe des IDs des items dans la liste
 
-	that.suff_editable = "_editable"; //suffixe des IDs des <ul> dans le container_editable
-	that.suff_edited = "_edited"; //suffixe des IDs des <inputs> dans le container_editable
+	that.suff_li_editable = "_editable"; //suffixe des IDs des <ul> dans le container_editable
+	that.suff_input = "_edited"; //suffixe des IDs des <inputs> dans le container_editable
 	that.class_edited = "item_edited"; //nom de la classe qu'ont les inputs dans le container_editable
 
 
@@ -38,7 +38,7 @@ function GestionnaireMenu(){
 
 	that.panel_structure = jq("#panel_structure"); //node
 	that.panel_editable = jq("#panel_editable"); //node
-	that.panel_organizable = jq("#panel_organisable"); //node
+	that.panel_organizable = jq("#panel_organizable"); //node
 	that.panel_deletable = jq("#panel_deletable"); //node
 
 	that.button_add = jq("#add_item"); //node
@@ -165,7 +165,21 @@ function GestionnaireMenu(){
 
 	//Bouton save
 	that.save = function(){
-
+		var to_send =  JSON.stringify(that.menu.to_json());
+		jq.ajax({
+			url : 'http://localhost:8080/component/' + that.menu.key,//TODO: RENSEIGNER URL
+			type : 'POST',
+			dataType : 'json',
+			data : to_send,
+			contentType : "application/json; charset=utf-8",
+			traditional : true,
+			success : function(msg) {
+				alert("Enregistrement réussi")
+			},
+			error : function(msg) {
+				alert("Erreur lors de l'enregistrement");
+			},
+		});
 	}
 
 	//Bouton cancel
@@ -188,12 +202,8 @@ function GestionnaireMenu(){
 	//return : true si la récupération a réussi, false sinon
 	that.recup_menu = function(menu){
 
-		//Si menu n'est pas de type Menu
-		if(!(menu instanceof Menu))
-			return;
-
 		jq.ajax({
-			url : 'http://localhost:8080',//TODO: RENSEIGNER URL
+			url : 'http://localhost:8080/component/en/menu', //récupère le menu publié
 			type : 'GET',
 			dataType : 'json',
 			data : '',
@@ -225,14 +235,14 @@ function GestionnaireMenu(){
 			it = menu.get_at(i);
 
 			//On récupère l'ID du parent
-			parent = (it.parent != null ? it.parent : that.container_structure[0].id);
+			parent = (it.parent != null ? it.parent.key : that.container_structure[0].id);
 
 			//Soit on crée une nouvelle liste soit on insère un nouvel élément
 			if(it.get_ordre() == 0){
-				jq("#" + parent).append("<ul><li class=' item'  id='" + it.get_key() + "'>" + it.get_txt() + "</li></ul>");
+				jq("#" + parent).append("<ul><li class='item'  id='" + it.get_key() + "'>" + it.get_txt() + "</li></ul>");
 			}
 			else{
-				jq("#" + parent + ">ul").append("<li class='item'  id='" + it.get_key() + "'>" + it.get_txt() + "</li>");
+				jq("#" + parent + " >ul").append("<li class='item'  id='" + it.get_key() + "'>" + it.get_txt() + "</li>");
 			}
 			//On fait le même traitement pour les enfants
 			that.render_menu(it);
@@ -253,18 +263,20 @@ function GestionnaireMenu(){
 			it = menu.get_at(i);
 
 			//On récupère l'ID du parent
-			parent = (it.parent != null ? it.parent : that.container_structure.id);
+			parent = (it.parent != null ? (it.parent.key + that.suff_li_editable) : that.container_editable[0].id);
 
 			//Soit on crée une nouvelle liste soit on insère un nouvel élément
 			if(it.get_ordre() == 0){
-				jq("#" + parent).append("<ul><li class=' item'  id='" + it.get_key() + "'>" + it.get_txt() + "</li></ul>");
+				jq("#" + parent).append("<ul><li class='item'  id='" + it.get_key() + that.suff_li_editable + "'><input id='" + it.get_key() + that.suff_input + 
+					" type='text' class='list-group-item item_edited' value='" + it.get_txt() + "'></input></li></ul>");
 			}
 			else{
-				jq("#" + parent + ">ul").append("<li class='item'  id='" + it.get_key() + "'>" + it.get_txt() + "</li>");
+				jq("#" + parent + " >ul").append("<li class='item'  id='" + it.get_key() + that.suff_li_editable + "'><input id='" + it.get_key() + that.suff_input +
+						 " type='text' class='list-group-item item_edited' value='" + it.get_txt() + "'></input></li>");
 			}
 			//On fait le même traitement pour les enfants
-			that.render_menu(it);
-
+			that.render_edit(it);
+			
 		}
 	};
 
@@ -292,15 +304,7 @@ function GestionnaireMenu(){
 
 		//On crée le menu
 		that.menu = new Menu();
-		//that.recup_menu(that.menu);
-
-		var it1 = new Item();
-		it1.txt = "it1";
-		var it2 = new Item();
-		it2.txt = "it2";
-		that.menu.push(it1);
-		that.menu.push(it2);
-		that.render_menu(that.menu);
+		that.recup_menu(that.menu);
 	}
 
 
@@ -341,9 +345,19 @@ function GestionnaireMenu(){
 		that.mode = "edit";
 		e.preventDefault();
 		jq(this).tab('show');
+
+		//On vide les containers
 		that.container_structure.empty();
 		that.container_deletable.empty();
 		that.container_organizable.empty();
+
+		//On cache les autres panels
+		that.panel_organizable.addClass("hidden");
+		that.panel_deletable.addClass("hidden");
+		that.panel_structure.addClass("hidden");
+
+		//On montre le panel qu'il faut
+		that.panel_organisable.removeClass("hidden");
 		that.render_edit(that.menu);
 
 	});
@@ -352,6 +366,12 @@ function GestionnaireMenu(){
 	//ÉVÈNEMENTS À CHAQUE FOIS QUE L'ON CLIQUE SUR UN ONGLET
 	jq('.options').click(function(){
 
+	});
+
+
+	//ENREGISTRER LE MENU EN BD
+	that.button_save.click(function (e){
+		that.save();
 	});
 };
 
