@@ -12,7 +12,7 @@ function GestionnaireMenu(){
 	//           ATTRIBUTS           //
 	///////////////////////////////////
 	that.key = jq.now() + Math.random().toString(36).substr(2); //jq.now() + Math.random().toString(36).substr(2)
-	that.menu; //Menu
+	that.menu = null; //Menu
 
 	that.container_structure = jq("#menu_container"); //node
 	that.container_editable = jq("#menu_container_editable"); //node
@@ -33,8 +33,8 @@ function GestionnaireMenu(){
 	that.suff_deleted = "_deleted"; //suffixe des IDs des <a> dans le container_deletable
 	that.class_deleted = "item_deleted"; //nom de la classe qu'ont les <a> dans le container_deletable
 
-	that.suff_organizable = "_organizable"; //suffixe des IDs des <ul> dans le container_organisable
-	that.class_organized = "item_organized"; //nom de la classe qu'ont les <ul> dans le container_organisable
+	that.suff_organizable = "_organizable"; //suffixe des IDs des <ul> dans le container_organizable
+	that.class_organized = "item_organized"; //nom de la classe qu'ont les <ul> dans le container_organizable
 
 	that.panel_structure = jq("#panel_structure"); //node
 	that.panel_editable = jq("#panel_editable"); //node
@@ -48,6 +48,12 @@ function GestionnaireMenu(){
 	that.button_clear = jq("#clear"); //node
 
 	that.input_add = jq("#txt_item"); //node
+
+	that.tab_structure = jq('#li_structure a'); //onglet 'structure'
+	that.tab_edit = jq('#li_modifier a'); //onglet 'modifier'
+	that.tab_organize = jq('#li_organiser a'); //onglet 'structure'
+	that.tab_delete = jq('#li_supprimer a'); //onglet 'modifier'
+
 
 
 
@@ -129,7 +135,7 @@ function GestionnaireMenu(){
 
     			break;
     		case "edit":
-    		
+    			
     			break;
     		case "delete":
     			break;
@@ -182,10 +188,9 @@ function GestionnaireMenu(){
 	//return : true si la récupération a réussi, false sinon
 	that.recup_menu = function(menu){
 
-		var res = false;
 		//Si menu n'est pas de type Menu
 		if(!(menu instanceof Menu))
-			return res;
+			return;
 
 		jq.ajax({
 			url : 'http://localhost:8080',//TODO: RENSEIGNER URL
@@ -197,13 +202,15 @@ function GestionnaireMenu(){
 			success : function(msg) {
 			 	//Menu.prototype.from_json retourne true en cas de succès
 			 	//et false si la récupération a échoué
-				res = menu.from_json(msg);
+				menu.from_json(msg);
+				//On render le menu en html
+				that.render_menu(that.menu);
 			},
 			error : function(msg) {
-				res = false;
+				alert("Erreur lors de la récupération du menu");
 			},
 		});
-		return res;
+
 	}
 
 	//Render le menu en mode structure
@@ -213,9 +220,34 @@ function GestionnaireMenu(){
 		var it;
 		var parent;
 
-		//Si menu n'est pas de type Menu ou de type Item
-		if(!(menu instanceof Menu) || !(menu instanceof Item))
-			return;
+
+		for(i=0; i<menu.get_nb_children(); ++i){
+			it = menu.get_at(i);
+
+			//On récupère l'ID du parent
+			parent = (it.parent != null ? it.parent : that.container_structure[0].id);
+
+			//Soit on crée une nouvelle liste soit on insère un nouvel élément
+			if(it.get_ordre() == 0){
+				jq("#" + parent).append("<ul><li class=' item'  id='" + it.get_key() + "'>" + it.get_txt() + "</li></ul>");
+			}
+			else{
+				jq("#" + parent + ">ul").append("<li class='item'  id='" + it.get_key() + "'>" + it.get_txt() + "</li>");
+			}
+			//On fait le même traitement pour les enfants
+			that.render_menu(it);
+
+		}
+
+	};
+
+	//Render le menu en mode edit
+	that.render_edit = function(menu) {
+
+		var i;
+		var it;
+		var parent;
+
 
 		for(i=0; i<menu.get_nb_children(); ++i){
 			it = menu.get_at(i);
@@ -234,7 +266,6 @@ function GestionnaireMenu(){
 			that.render_menu(it);
 
 		}
-
 	};
 
 	//Charger le menu
@@ -261,15 +292,66 @@ function GestionnaireMenu(){
 
 		//On crée le menu
 		that.menu = new Menu();
-		//On récupère le menu avec le backend : true si ça a fonctionné
-		//false si ça a échoué
-		if(!that.recup_menu(that.menu)){
-			alert("Échec lors de la récupération du menu");
-		}
+		//that.recup_menu(that.menu);
 
-		//On render le menu en html
+		var it1 = new Item();
+		it1.txt = "it1";
+		var it2 = new Item();
+		it2.txt = "it2";
+		that.menu.push(it1);
+		that.menu.push(it2);
 		that.render_menu(that.menu);
 	}
 
+
+	////////////////////////////////////////
+	//VISUALISER LA STRUCTURE EN READ-ONLY//
+	////////////////////////////////////////
+	that.tab_structure.click(function (e) {
+	  that.mode = "structure";
+	  e.preventDefault();
+	  jq(this).tab('show');
+
+	});
+
+	///////////////////////
+	//ORGANISER LES ITEMS//
+	///////////////////////
+	that.tab_organize.click(function (e) {
+	  that.mode = "organize";
+	  e.preventDefault();
+	  jq(this).tab('show');
+	});
+
+	///////////////////////
+	//SUPPRIMER DES ITEMS//
+	///////////////////////
+	that.tab_delete.click(function (e) {
+	  that.mode = "delete";
+	  e.preventDefault();
+	  jq(this).tab('show');
+
+	});
+
+	//////////////////////
+	//MODIFIER DES ITEMS//
+	//////////////////////
+	that.tab_edit.click(function (e) {
+		
+		that.mode = "edit";
+		e.preventDefault();
+		jq(this).tab('show');
+		that.container_structure.empty();
+		that.container_deletable.empty();
+		that.container_organizable.empty();
+		that.render_edit(that.menu);
+
+	});
+
+
+	//ÉVÈNEMENTS À CHAQUE FOIS QUE L'ON CLIQUE SUR UN ONGLET
+	jq('.options').click(function(){
+
+	});
 };
 
