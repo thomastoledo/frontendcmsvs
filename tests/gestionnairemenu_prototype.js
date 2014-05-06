@@ -165,9 +165,12 @@ function GestionnaireMenu(){
 
 	//Bouton save
 	that.save = function(){
+		var date = new Date();
+		that.menu.release = date.getFullYear()  + "-" + date.getMonth() + "-" +
+		 date.getDay() + "-" + date.getHours() + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds();
 		var to_send =  JSON.stringify(that.menu.to_json());
 		jq.ajax({
-			url : 'http://localhost:8080/component/' + that.menu.key,//TODO: RENSEIGNER URL
+			url : 'http://localhost:8080/component/' + that.menu.key,
 			type : 'POST',
 			dataType : 'json',
 			data : to_send,
@@ -184,18 +187,23 @@ function GestionnaireMenu(){
 
 	//Bouton cancel
 	that.cancel = function(){
-
-	}
-
-	//Bouton publish
-	that.publish = function(){
-
+		that.clear();
+		menu = new Menu();
+		that.recup_menu(that.menu);
 	}
 
 	//Bouton clear
 	that.clear = function(){
+		that.container_structure.empty();
+		that.container_editable.empty();
+		that.container_organizable.empty();
+		that.container_deletable.empty();
 
-	}
+		that.lst_items.empty();
+		that.menu.empty();
+	}	
+
+
 
 	//Récupérer le menu du backend
 	//[in/out] menu : variable de type Menu qui va recevoir le message du backend
@@ -217,7 +225,6 @@ function GestionnaireMenu(){
 				that.render_menu(that.menu);
 			},
 			error : function(msg) {
-				alert("Erreur lors de la récupération du menu");
 			},
 		});
 
@@ -235,7 +242,7 @@ function GestionnaireMenu(){
 			it = menu.get_at(i);
 
 			//On récupère l'ID du parent
-			parent = (it.parent != null ? it.parent.key : that.container_structure[0].id);
+			parent = (it.parent != null ? it.parent.key : that.container_structure.attr("id"));
 
 			//Soit on crée une nouvelle liste soit on insère un nouvel élément
 			if(it.get_ordre() == 0){
@@ -263,7 +270,7 @@ function GestionnaireMenu(){
 			it = menu.get_at(i);
 
 			//On récupère l'ID du parent
-			parent = (it.parent != null ? (it.parent.key + that.suff_li_editable) : that.container_editable[0].id);
+			parent = (it.parent != null ? (it.parent.key + that.suff_li_editable) : that.container_editable.attr("id"));
 
 			//Soit on crée une nouvelle liste soit on insère un nouvel élément
 			if(it.get_ordre() == 0){
@@ -284,23 +291,8 @@ function GestionnaireMenu(){
 	//On charge par défaut le dernier menu de la langue sur laquelle l'utilisateur travaillait
 	that.load = function(langue){
 
-		that.lst_items.
-			append("<option id='" + that.container_structure.attr('id') 
-				+ that.suff_lst + "' value='" + that.container_structure.attr('id') + "'>/</option>");
-
-		//Quand on clique sur le bouton ou que l'on presse "entrée" quand on est dans l'input
-		//on déclenche l'ajout d'un item
-		that.button_add.click(function(){
-			that.add_item();
-		});
-
-		that.input_add.keydown(function(event){
-			//alert(event.which);
-			if(event.which == '13'){
-				that.add_item();
-				return false; //on empêche le refresh de la page par l'event submit
-			}
-		});
+		that.lst_items.append("<option id='" + that.container_structure.attr('id') 
+			+ that.suff_lst + "' value='" + that.container_structure.attr('id') + "'>/</option>");
 
 		//On crée le menu
 		that.menu = new Menu();
@@ -371,7 +363,43 @@ function GestionnaireMenu(){
 
 	//ENREGISTRER LE MENU EN BD
 	that.button_save.click(function (e){
+		that.menu.published = false;
 		that.save();
+	});
+
+	//CLEAR LE MENU <=> VIDER LE MENU
+	that.button_clear.click(function (e){
+		that.clear();
+		that.lst_items.append("<option id='" + that.container_structure.attr('id') 
+			+ that.suff_lst + "' value='" + that.container_structure.attr('id') + "'>/</option>");
+	});
+
+	//PUBLIER LE MENU
+	that.button_publish.click(function (e){
+		that.menu.published = true;
+		that.save();
+	});
+
+	//ANNULER TOUTE SAISIE
+	that.button_cancel.click(function (e){
+		that.cancel();
+		that.lst_items.append("<option id='" + that.container_structure.attr('id') 
+			+ that.suff_lst + "' value='" + that.container_structure.attr('id') + "'>/</option>");
+	});
+
+
+	//Quand on clique sur le bouton ou que l'on presse "entrée" quand on est dans l'input
+	//on déclenche l'ajout d'un item
+	that.button_add.click(function(){
+		that.add_item();
+	});
+
+	that.input_add.keydown(function(event){
+		//alert(event.which);
+		if(event.which == '13'){
+			that.add_item();
+			return false; //on empêche le refresh de la page par l'event submit
+		}
 	});
 };
 

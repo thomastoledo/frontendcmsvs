@@ -194,6 +194,15 @@ function Menu(){
 		that.children = menu.children;
 		return true;
 	}
+
+
+	that.empty = function(){
+		var i;
+		for(i=that.get_nb_children()-1; i>=0; --i){
+			that.children[i].empty();
+			that.pop();
+		}
+	}
 };
 
 Menu.prototype.create_from_json = function(json) {

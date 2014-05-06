@@ -151,6 +151,17 @@ function Item(){
 		that.parent = it.parent;
 		that.children = it.children;
 	}
+
+
+	that.empty = function(){
+		var i;
+
+		for(i=that.get_nb_children()-1; i>=0; --i){
+			that.children[i].empty();
+			that.pop();
+		}
+
+	}
 };
 
 Item.prototype.create_from_json = function(json) {
