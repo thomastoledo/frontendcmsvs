@@ -1,0 +1,66 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>Tests Item Prototype</title>
+	<link rel="stylesheet" type="text/css" href="./bootstrap/css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="./bootstrap/css/bootstrap-theme.min.css" />
+	<link rel="stylesheet" type="text/css" href="arborescence_css.css" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+<div class="container">
+
+	<div class="panel panel-default">
+		<div class="panel-heading">
+
+			<form class="navbar-form navbar-left" role="search">
+				<button id="add_item" type="button" class="btn btn-default ">Ajouter</button>
+	  			<div class="form-group">
+	  				<input id="txt_item" type="text" class="form-control"/>
+					<select id="lst_items" class="form-control"></select>
+				</div>
+
+			</form>
+			<button id="cancel" type="button" class="btn btn-default navbar-btn">Annuler</button>
+			<button id="save" type="button" class="btn btn-default navbar-btn btn_insertion_bd">Enregistrer</button>
+			<button id="publish" type="button" class="btn btn-default navbar-btn btn_insertion_bd">Publier</button>
+		</div>
+		<div class="panel-body">
+
+			<ul class="nav nav-tabs">
+				<li id="li_structure" class="active options"><a href id="l_structure" class="btn">Pages/Menu</a></li>
+			</ul>
+
+			<div id="panel_structure" class="panel panel-default">
+			  <div class="panel-body">
+
+			    <ul id = "menu_container" class="list-group">
+				</ul>
+			  </div>
+			</div>			
+		</div>
+	</div>
+
+</div>
+<div id="results">
+</div>
+
+
+
+
+
+
+</body>
+<footer>
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="jquery.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="./bootstrap/js/bootstrap.min.js"></script>
+    <script src="./gestionnairemenu_prototype.js"></script>
+    <script src="./menu_prototype.js"></script>
+    <script src="./item_prototype.js"></script>
+    <script src="./load.js"></script>
+</footer>
+</html>

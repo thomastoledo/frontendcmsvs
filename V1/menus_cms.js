@@ -2,6 +2,7 @@
 var jq = jQuery.noConflict();
 var vers = 1;
 
+
 //TODO:
 //NOMENCLATURE DES BLOCS
 //menu_container_editable
@@ -70,7 +71,9 @@ function placer_noeuds(parent,noeuds){
 				parent.append("<ul class='breadcrumb item' id='" + noeuds[j].clef + "''>" + noeuds[j].str + "</ul >");
 
 				//ajouter le noeud à la liste des items
+
 				jq("#lst_items").append("<option id='" + noeuds[j].clef + "_lst' value='" + noeuds[j].clef + "'>" + noeuds[j].str + "</option>");
+
 
 				//placer les items du noeud avec ce dernier en racine
 				placer_noeuds(jq("#" + noeuds[j].clef),noeuds[j].items);
@@ -91,7 +94,7 @@ jq("#add_item").click(function(){
 		return;
 	}
 	var parent = jq('#lst_items').find(":selected").val(); //on récupère le parent
-
+	alert(parent);
 	//ajouter le nouveau noeud à l'arbre
 	//TODO: DANS CETTE FONCTION LUI FAIRE RETOURNER 
 	add_new_item(creer_nouvel_item(parent,txt));
@@ -101,7 +104,20 @@ jq("#add_item").click(function(){
 
 
 function add_new_item(item){
-	jq("#lst_items").append("<option id='" + item.clef +"_lst' value='" + item.clef + "'>" + item.str + "</option>");
+
+	//var child = jq("#" + item.parent).children().last(); //on récupère le dernier enfant du parent
+	//var grand_childrend = child.children(); //on récupère 
+	//var lg = grand_childrend.length;
+	//TODO : FONCTION POUR RÉCUPÉRER L'ID DANS LA LISTE DÉROULANTE OÙ PLACER LE NOUVEL ITEM
+	//RÉCURSIVITÉ EN VUE MON CAPITAINE!
+	//POUR LE PLACER APRÈS LE DERNIER ENFANT DU DERNIER ENFANT DU .... DU DERNIER ENFANT DU PARENT.
+
+
+
+	var place = child.children(lg-1);
+	alert(place.id);
+	jq("#" + place.id + "_lst").after("<option id='" + item.clef +"_lst' value='" + item.clef + "'>" + item.str + "</option>");
+	
 	//Si on est en mode 'modification'
 	if(!jq("#panel_editable").hasClass("hidden")){
 		jq("#" + item.parent + "_editable").append("<ul id='" + item.clef + "_editable' class='breadcrumb item'> <input id='" + item.clef +
@@ -117,7 +133,7 @@ function add_new_item(item){
 //Fonction retournant le nouvel objet JSON
 function creer_nouvel_item(parent,str){
 	//TODO: à la place de 'next_clef', mettre 'jq.now()'
-	return { clef : next_clef  , str : str, parent : parent, ordre : (jq("#" + parent).children().size() + 1)
+	return { clef : jq.now()  , str : str, parent : parent, ordre : (jq("#" + parent).children().size() + 1)
 	, version : (vers+1) , langue : "FR", items : [] };
 }
 
@@ -234,26 +250,28 @@ jq('#li_supprimer a').click(function (e) {
 jq('#li_modifier a').click(function (e) {
 	
 
-  e.preventDefault();
-  jq(this).tab('show');
+	e.preventDefault();
+	jq(this).tab('show');
 
-  //on vide le container editable
-  jq("#menu_container_editable").empty();
+  	if(jq("#panel_editable").hasClass("hidden")){
+	  //on vide le container editable
+	  jq("#menu_container_editable").empty();
 
-  //on le remplit de nouveau
-  rendre_editable("menu_container");
+	  //on le remplit de nouveau
+	  rendre_editable("menu_container");
 
-  //on cache le container de structure
-  jq("#panel_structure").addClass("hidden");
+	  //on cache le container de structure
+	  jq("#panel_structure").addClass("hidden");
 
-  //on vide le container de structure
-  jq("#menu_container").empty();
+	  //on vide le container de structure
+	  jq("#menu_container").empty();
 
-  //on affiche le container editable
-  jq("#panel_editable").removeClass("hidden");
+	  //on affiche le container editable
+	  jq("#panel_editable").removeClass("hidden");
 
-  //on set les events
-  maj_lst_items();
+	  //on set les events
+	  maj_lst_items();
+	}
 });
 
 
@@ -314,7 +332,7 @@ function rendre_non_editable(id_noeud){
 
 //MISE À JOUR DE LA LISTE DÉROULANTE À CHAQUE MODIFICATION D'UN CHAMP
 function maj_lst_items(){
-	jq(".item_edited").keyup(function(){
+	jq(".item_edited").keyup(function(){ //à chaque fois qu'on écrit un caractère dans un champs
 		var toRemove = "_edited";
 		jq("#" + this.id.replace(toRemove,'') + "_lst").text(this.value);
 	});
