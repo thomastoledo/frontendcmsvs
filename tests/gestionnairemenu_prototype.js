@@ -166,18 +166,18 @@ function GestionnaireMenu(){
 	}
 
 	//Bouton save
-	that.save = function(){
+	that.save = function(menu){
 		var date = new Date();
-		that.menu.release = date.getFullYear()  + "-" + date.getMonth() + "-" +
+		menu.release = date.getFullYear()  + "-" + date.getMonth() + "-" +
 			date.getDay() + "-" + date.getHours() + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds();
 		//TODO : variabiliser la langue
 
-		that.menu.lang = "EN";
-		var to_send =  JSON.stringify(that.menu.to_json());
+		menu.lang = "en";
+		var to_send =  JSON.stringify(menu.to_json());
 		jq.ajax({
-			url : 'http://localhost:8080/component/' + that.menu.key,
+			url : 'http://localhost:8080/component/' + menu.key,
 			type : 'POST',
-			dataType : 'json',
+			dataType : 'text',
 			data : to_send,
 			contentType : "application/json; charset=utf-8",
 			traditional : true,
@@ -195,6 +195,7 @@ function GestionnaireMenu(){
 		that.clear();
 		menu = new Menu();
 		that.recup_menu(that.menu);
+		that.render_menu(menu);
 	}
 
 	//Bouton clear
@@ -212,26 +213,24 @@ function GestionnaireMenu(){
 
 	//Récupérer le menu du backend
 	//[in/out] menu : variable de type Menu qui va recevoir le message du backend
-	//return : true si la récupération a réussi, false sinon
 	that.recup_menu = function(menu){
+	 	//Menu.prototype.from_json retourne true en cas de succès
+	 	//et false si la récupération a échoué
+		menu.from_json(
+			jq.ajax({
+				url : 'http://localhost:8080/component/en/menu', //récupère le menu publié
+				type : 'GET',
+				dataType : 'text',
+				data : '',
+				contentType : "application/json; charset=utf-8",
+				traditional : true,
+				success : function(msg) {
 
-		jq.ajax({
-			url : 'http://localhost:8080/component/en/menu', //récupère le menu publié
-			type : 'GET',
-			dataType : 'json',
-			data : '',
-			contentType : "application/json; charset=utf-8",
-			traditional : true,
-			success : function(msg) {
-			 	//Menu.prototype.from_json retourne true en cas de succès
-			 	//et false si la récupération a échoué
-				menu.from_json(msg);
-				//On render le menu en html
-				that.render_menu(that.menu);
-			},
-			error : function(msg) {
-			},
-		});
+				},
+				error : function(msg) {
+				},
+				async : false
+			}).responseText);
 
 	}
 
@@ -256,6 +255,9 @@ function GestionnaireMenu(){
 			else{
 				jq("#" + parent + " >ul").append("<li class='item'  id='" + it.get_key() + "'>" + it.get_txt() + "</li>");
 			}
+					//Ajout dans la liste au bon endroit
+			jq("#" + parent + that.suff_lst).after("<option id='" + it.get_key() + that.suff_lst + "' value='" + it.get_key() + "'>" 
+				+ it.get_txt() + "</option>");
 			//On fait le même traitement pour les enfants
 			that.render_menu(it);
 
@@ -302,6 +304,8 @@ function GestionnaireMenu(){
 		//On crée le menu
 		that.menu = new Menu();
 		that.recup_menu(that.menu);
+		//On render le menu en html
+		that.render_menu(that.menu);
 	}
 
 
@@ -368,8 +372,9 @@ function GestionnaireMenu(){
 
 	//ENREGISTRER LE MENU EN BD
 	that.button_save.click(function (e){
+		that.menu.key = jq.now() + Math.random().toString(36).substr(2);
 		that.menu.published = false;
-		that.save();
+		that.save(that.menu);
 	});
 
 	//CLEAR LE MENU <=> VIDER LE MENU
@@ -381,8 +386,16 @@ function GestionnaireMenu(){
 
 	//PUBLIER LE MENU
 	that.button_publish.click(function (e){
+		var menu_published = new Menu();
+
+		that.recup_menu(menu_published);
+		menu_published.published = false;
+		that.save(menu_published);
+
+
+		that.menu.key = jq.now() + Math.random().toString(36).substr(2);
 		that.menu.published = true;
-		that.save();
+		that.save(that.menu);
 	});
 
 	//ANNULER TOUTE SAISIE
