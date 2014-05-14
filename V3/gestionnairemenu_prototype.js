@@ -17,11 +17,9 @@ function GestionnaireMenu(){
 	that.menu = null; //Menu
 
 	that.container_structure = jq("#menu_container"); //node
-	that.container_editable = jq("#menu_container_editable"); //node
-	that.container_deletable = jq("#menu_container_deletable"); //node
-	that.container_organizable = jq("#menu_organizable"); //node
+	that.container_settings = jq("#menu_settings"); //node
 
-	that.mode = "structure"; //structure, edit, delete, organize
+	that.mode = "structure"; //structure, configure
 
 	that.lst_items = jq("#lst_items"); //node
 	that.suff_lst = "_lst"; //suffixe des IDs des items dans la liste
@@ -39,6 +37,7 @@ function GestionnaireMenu(){
 	that.class_organized = "item_organized"; //nom de la classe qu'ont les <ul> dans le container_organizable
 
 	that.panel_structure = jq("#panel_structure"); //node
+	that.panel_settings = jq("#panel_settings"); //nod
 
 	that.button_add = jq("#add_item"); //node
 	that.button_cancel = jq("#cancel"); //node
@@ -48,9 +47,7 @@ function GestionnaireMenu(){
 	that.input_add = jq("#txt_item"); //node
 
 	that.tab_structure = jq('#li_structure a'); //onglet 'structure'
-	that.tab_edit = jq('#li_modifier a'); //onglet 'modifier'
-	that.tab_organize = jq('#li_organiser a'); //onglet 'structure'
-	that.tab_delete = jq('#li_supprimer a'); //onglet 'modifier'
+	that.tab_settings = jq('#li_settings a'); //onglet 'settings'
 
 
 
@@ -124,26 +121,15 @@ function GestionnaireMenu(){
 				+ it.get_txt() + "</option>");
 
 		//Ajout dans l'arborescence selon le mode
-		switch (that.mode) {
-    		case "structure":
-    			//Si le parent contient déjà des enfants, on rajoute juste  l'item
-    			//sinon on crée une nouvelle liste
-    			if(it_parent.get_nb_children() > 1){ //on test > 1 car on a déjà rajouté l'enfant tout à l'heure
-    				jq("#" + parent + ">ul").append("<li class = 'item'  id='" + it.get_key() + "'><a href='http://www.virtualsensitive.com/en/"
-    					+  it.get_url() + "' target='_blank'>" + it.get_txt() + "</a></li>");
-    			}
-    			else{
-    				jq("#" + parent).append("<ul><li class = ' item'  id='" + it.get_key() + "'><a href='http://www.virtualsensitive.com/en/" 
-    					+  it.get_url() + "' target='_blank'>" + it.get_txt() + "</a></li></ul>");
-    			}
-
-    			break;
-    		case "edit":
-    			break;
-    		case "delete":
-    			break;
-    		case "organize":
-    			break;
+		//Si le parent contient déjà des enfants, on rajoute juste  l'item
+		//sinon on crée une nouvelle liste
+		if(it_parent.get_nb_children() > 1){ //on test > 1 car on a déjà rajouté l'enfant tout à l'heure
+			jq("#" + parent + ">ul").append("<li class = 'item'  id='" + it.get_key() + "'><a href='http://www.virtualsensitive.com/en/"
+				+  it.get_url() + "' target='_blank'>" + it.get_txt() + "</a></li>");
+		}
+		else{
+			jq("#" + parent).append("<ul><li class = ' item'  id='" + it.get_key() + "'><a href='http://www.virtualsensitive.com/en/" 
+				+  it.get_url() + "' target='_blank'>" + it.get_txt() + "</a></li></ul>");
 		}
 
 		//On se replace ensuite dans l'input
@@ -181,8 +167,8 @@ function GestionnaireMenu(){
 			dataType : 'text',
 			data : to_send,
 			contentType : "application/json; charset=utf-8",
-			traditional : true,
-			success : function(msg) {
+			traditional : true
+,			success : function(msg) {
 				alert("Enregistrement réussi")
 			},
 			error : function(msg) {
@@ -322,6 +308,23 @@ function GestionnaireMenu(){
 	  e.preventDefault();
 	  jq(this).tab('show');
 
+	  //On cache le panel de configuration et on montre l'arborescence
+	  that.panel_structure.removeClass("hidden");
+	  that.panel_settings.addClass("hidden");
+
+	});
+
+	///////////////////////
+	//ORGANISER LES ITEMS//
+	///////////////////////
+	that.tab_settings.click(function (e) {
+	  that.mode = "settings";
+	  e.preventDefault();
+	  jq(this).tab('show');
+
+	  //On cache l'arborescence et on montre l'interface de configuration
+	  that.panel_settings.removeClass("hidden");
+	  that.panel_structure.addClass("hidden");
 	});
 
 	//ENREGISTRER LE MENU EN BD

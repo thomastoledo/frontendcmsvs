@@ -14,6 +14,7 @@ function Item(){
 	that.txt; //string
 	that.type = "item";
 	that.url;
+	that.visible;
 	
 	//SETTERS
 	that.set_key = function(key){
@@ -32,6 +33,9 @@ function Item(){
 		that.url = jq.trim(url).replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, '-');
 	}
 
+	that.set_visible = function(visible){
+		that.visible = visible
+	}
 
 
 	//GETTERS
@@ -53,6 +57,10 @@ function Item(){
 
 	that.get_url = function(){
 		return that.url;
+	}
+
+	that.isVisible = function(){
+		return that.visible;
 	}
 
 	that.get_nb_children = function(){

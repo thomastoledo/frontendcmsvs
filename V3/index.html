@@ -31,6 +31,7 @@
 
 			<ul class="nav nav-tabs">
 				<li id="li_structure" class="active options"><a href id="l_structure" class="btn">Pages/Menu</a></li>
+				<li id="li_settings" class="options"><a href id="l_settings" class="btn">Configurer</a></li>
 			</ul>
 
 			<div id="panel_structure" class="panel panel-default">
@@ -39,7 +40,88 @@
 			    <ul id = "menu_container" class="list-group">
 				</ul>
 			  </div>
-			</div>			
+			</div>
+
+			<div id="panel_settings" class="panel panel-default hidden">
+			  <div class="panel-body">
+			  	<div id="settings">
+			  		<form class="form-horizontal" role="form">
+
+						<div class="form-group">
+							<label for"lst_items_settings" class="col-sm-2 control-label">Page</label>
+							<div class="col-sm-10">
+								<select id="lst_items_settings" placeholder="select-page" class="form-control"></select>
+							</div>
+						</div>
+
+
+						<div class="form-group">
+							<label for="txt_title" class="col-sm-2 control-label">Titre</label>
+							<div class="col-sm-10">
+								<input id="txt_title" type="text" class="form-control" placeholder="Titre de la page">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="txt_url" class="col-sm-2 control-label">URL</label>
+							<div class="col-sm-10">
+								<strong>http://www.virtualsensitive.com/en/</strong><span id="span_url" ></span>
+								<input id="txt_url" type="text" class="form-control" placeholder="URL de la page">
+							</div>
+						</div>
+
+
+						<div class="form-group">
+							<label for"lst_parents" class="col-sm-2 control-label">Parent</label>
+							<div class="col-sm-10">
+								<select id="lst_parents" placeholder="select-page" class="form-control"></select>
+							</div>
+						</div>
+
+
+						<div class="form-group">
+							<div class="col-sm-offset-2 col-sm-10">
+								<div class="checkbox">
+									<label>
+									<input type="checkbox"> Afficher dans le menu
+									</label>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<div class="col-sm-offset-2 col-sm-10">
+								<button type="button" class="btn btn-default">Valider</button>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div id="infos_page">
+
+					<span id ="spn_parent"><strong>Modifier la page parente</strong></span>
+					<div class="btn-group">
+						<button id="edit_parent" type="button" class="btn btn-default ">
+							<span class="glyphicon glyphicon-wrench"></span>
+						</button>
+					</div>
+					<div id="parent" class="well well-sm"></div>
+
+
+
+					<table id="children" class="table table-hover">
+						<thead>
+							<tr>
+								<th>Modifier les enfants</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+
+				</div>
+			  </div>
+			</div>	
+
 		</div>
 	</div>
 
