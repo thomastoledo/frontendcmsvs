@@ -14,7 +14,7 @@ function Item(){
 	that.txt; //string
 	that.type = "item";
 	that.url;
-	that.visible;
+	that.visible = false;
 	
 	//SETTERS
 	that.set_key = function(key){
@@ -140,6 +140,8 @@ function Item(){
 		json.key = that.key;
 		json.txt = that.txt;
 		json.type = that.type;
+		json.visible = that.visible;
+		json.url = that.url;
 
 		if(that.parent != null)
 			json.parent = that.parent.get_key();
@@ -166,6 +168,8 @@ function Item(){
 		that.txt = it.txt;
 		that.parent = it.parent;
 		that.children = it.children;
+		that.url = it.url;
+		that.visible = it.visible;
 	}
 
 
@@ -199,7 +203,9 @@ Item.prototype.create_from_json = function(json) {
 	it.key = json.key;
 	it.ordre = json.ordre;
 	it.txt = json.txt;
-
+	it.url = json.url;
+	it.visible = json.visible;
+	
 	if(json.parent == -1)
 		it.parent = null;
 

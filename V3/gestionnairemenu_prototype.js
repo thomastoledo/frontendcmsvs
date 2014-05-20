@@ -13,43 +13,46 @@ function GestionnaireMenu(){
 	///////////////////////////////////
 	//           ATTRIBUTS           //
 	///////////////////////////////////
+
 	that.key = jq.now() + Math.random().toString(36).substr(2); //jq.now() + Math.random().toString(36).substr(2)
 	that.menu = null; //Menu
 
-	that.container_structure = jq("#menu_container"); //node
-	that.container_settings = jq("#menu_settings"); //node
-
 	that.mode = "structure"; //structure, configure
 
-	that.lst_items = jq("#lst_items"); //node
-	that.suff_lst = "_lst"; //suffixe des IDs des items dans la liste
-
-	that.suff_li_editable = "_editable"; //suffixe des IDs des <ul> dans le container_editable
-	that.suff_input = "_edited"; //suffixe des IDs des <inputs> dans le container_editable
-	that.class_edited = "item_edited"; //nom de la classe qu'ont les inputs dans le container_editable
-
-
-	that.suff_deletable = "_deletable"; //suffixe des IDs des <ul> dans le container_deletable
-	that.suff_deleted = "_deleted"; //suffixe des IDs des <a> dans le container_deletable
-	that.class_deleted = "item_deleted"; //nom de la classe qu'ont les <a> dans le container_deletable
-
-	that.suff_organizable = "_organizable"; //suffixe des IDs des <ul> dans le container_organizable
-	that.class_organized = "item_organized"; //nom de la classe qu'ont les <ul> dans le container_organizable
-
-	that.panel_structure = jq("#panel_structure"); //node
-	that.panel_settings = jq("#panel_settings"); //nod
-
-	that.button_add = jq("#add_item"); //node
-	that.button_cancel = jq("#cancel"); //node
-	that.button_save = jq("#save"); //node
-	that.button_publish = jq("#publish"); //node
-
-	that.input_add = jq("#txt_item"); //node
 
 	that.tab_structure = jq('#li_structure a'); //onglet 'structure'
 	that.tab_settings = jq('#li_settings a'); //onglet 'settings'
 
 
+	//NAVBAR SUPERIEURE
+	that.button_add = jq("#add_item"); //ajout d'un item
+	that.input_add = jq("#txt_item"); //nom de l'item à ajouter
+	that.lst_items = jq("#lst_items"); //liste des items
+	that.suff_lst = "_lst"; //suffixe des IDs des items dans la liste
+	that.button_cancel = jq("#cancel"); //annuler toutes les saisies
+	that.button_save = jq("#save"); //enregistrer les saisies
+	that.button_publish = jq("#publish"); //publier les saisies
+
+
+	//PANEL STRUCTURE
+	that.container_structure = jq("#menu_container"); //arborescence des items
+	that.panel_structure = jq("#panel_structure"); //node
+
+
+	//PANEL SETTINGS
+	that.panel_settings = jq("#panel_settings"); //node
+	that.container_settings = jq("#settings"); //div contenant l'interface ==> div
+	that.lst_items_settings = jq("#lst_items_settings"); //Choix de l'item ==> select
+	that.txt_title = jq("#txt_title"); //Titre de l'item ==> input
+	that.lst_parents = jq("#lst_parents"); //Liste des parents disponibles ==> select
+	that.item_parent = jq("#parent"); //Parent à afficher ==> span
+	that.children = jq("#children > tbody"); //Tableau des enfants de la page ==> table
+	that.submit_config = jq("#submit_config"); //Valider la config ==> button
+	that.cancel_config = jq("#cancel_config"); //Reset la config ==> button
+	that.show_item = jq("#show_item"); //La page est visible dans le menu ==> checkbox
+	that.edit_parent = jq("#edit_parent"); //Configurer le parent ===> button
+	that.txt_url = jq("#txt_url"); //L'URL de la page ===> input
+	that.suff_lst_settings = "_lst_settings";
 
 
 	//////////////////////////////////
@@ -155,10 +158,20 @@ function GestionnaireMenu(){
 	//Bouton save
 	that.save = function(menu){
 		var date = new Date();
+		var pages;
+		var i = 0;
+
 		menu.release = date.getFullYear()  + "-" + date.getMonth() + "-" +
 			date.getDay() + "-" + date.getHours() + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds();
-		//TODO : variabiliser la langue
+		
 
+		//Récupérer toutes les pages du Menu
+		//pages = that.pages_of_menu(that.menu);
+		//Delete chaque page de la BD
+		//Modifier l'URL de chaque page
+		//Enregistrer chaque nouvelle page.
+
+		//TODO : variabiliser la langue
 		menu.lang = "en";
 		var to_send =  JSON.stringify(menu.to_json());
 		jq.ajax({
@@ -167,8 +180,8 @@ function GestionnaireMenu(){
 			dataType : 'text',
 			data : to_send,
 			contentType : "application/json; charset=utf-8",
-			traditional : true
-,			success : function(msg) {
+			traditional : true,
+			success : function(msg) {
 				alert("Enregistrement réussi")
 			},
 			error : function(msg) {
@@ -187,16 +200,29 @@ function GestionnaireMenu(){
 
 	//Bouton clear
 	that.clear = function(){
-		that.container_structure.empty();
-		that.container_editable.empty();
-		that.container_organizable.empty();
-		that.container_deletable.empty();
 
+		//Vider l'arborescence
+		that.container_structure.empty();
+
+		//Vider la liste
 		that.lst_items.empty();
+
+		//Vider le menu
 		that.menu.empty();
+
+		//Vider le panneau de configuration
+		that.empty_settings_panel();
 	}	
 
-
+	that.empty_settings_panel = function(){
+		that.lst_items_settings.empty();
+		that.txt_title.val("");
+		that.lst_parents.empty();
+		that.item_parent.val("");
+		that.children.empty();
+		that.show_item.attr('checked', false);
+		that.txt_url.val("");
+	}
 
 	//Récupérer le menu du backend
 	//[in/out] menu : variable de type Menu qui va recevoir le message du backend
@@ -245,7 +271,7 @@ function GestionnaireMenu(){
 				jq("#" + parent + ">ul").append("<li class = 'item'  id='" + it.get_key() + "'><a href='http://www.virtualsensitive.com/en/"
     					+  it.get_url() + "' target='_blank'>" + it.get_txt() + "</a></li>");
 			}
-					//Ajout dans la liste au bon endroit
+			//Ajout dans la liste au bon endroit
 			jq("#" + parent + that.suff_lst).after("<option id='" + it.get_key() + that.suff_lst + "' value='" + it.get_key() + "'>" 
 				+ it.get_txt() + "</option>");
 			//On fait le même traitement pour les enfants
@@ -253,7 +279,7 @@ function GestionnaireMenu(){
 
 		}
 
-	};
+	};	
 
 	//Render le menu en mode edit
 /*	that.render_edit = function(menu) {
@@ -318,13 +344,24 @@ function GestionnaireMenu(){
 	//ORGANISER LES ITEMS//
 	///////////////////////
 	that.tab_settings.click(function (e) {
-	  that.mode = "settings";
-	  e.preventDefault();
-	  jq(this).tab('show');
+		var i;
+		that.mode = "settings";
+		e.preventDefault();
+		jq(this).tab('show');
 
-	  //On cache l'arborescence et on montre l'interface de configuration
-	  that.panel_settings.removeClass("hidden");
-	  that.panel_structure.addClass("hidden");
+		//On cache l'arborescence et on montre l'interface de configuration
+		that.panel_settings.removeClass("hidden");
+		that.panel_structure.addClass("hidden");
+
+		//On remplit la liste des items
+		for(i=0; i<that.menu.get_nb_children(); ++i){
+			that.lst_items_settings.append("<option id='" + that.menu.get_at(i).get_key() 
+			+ that.suff_lst_settings + "' value='" + that.menu.get_at(i).get_txt() + "'>" +
+			 that.menu.get_at(i).get_txt() + "</option>");
+		}
+
+		that.lst_items_settings.trigger("change");
+
 	});
 
 	//ENREGISTRER LE MENU EN BD
@@ -379,5 +416,62 @@ function GestionnaireMenu(){
 		return true;
 	});
 
+	//Quand on fait une modification dans le panel de configuration,
+	//on rajoute une étoile pour montrer à l'utilisateur qu'une modification doit être validée
+	that.txt_title.keypress(function(event){
+		if(that.tab_settings.text()[that.tab_settings.text().length -1] != "*"){
+			that.tab_settings.text(that.tab_settings.text() + " *");
+		}
+	});
+
+	that.txt_url.keypress(function(event){
+		if(that.tab_settings.text()[that.tab_settings.text().length -1] != "*"){
+			that.tab_settings.text(that.tab_settings.text() + " *");
+		}
+	});
+
+	that.show_item.change(function(){
+		if(that.tab_settings.text()[that.tab_settings.text().length -1] != "*"){
+			that.tab_settings.text(that.tab_settings.text() + " *");
+		}
+	});
+
+	that.lst_parents.change(function(){
+		if(that.tab_settings.text()[that.tab_settings.text().length -1] != "*"){
+			that.tab_settings.text(that.tab_settings.text() + " *");
+		}
+	});
+
+	that.cancel_config.click(function(){
+		that.tab_settings.text("Configurer");
+	});
+
+	that.submit_config.click(function(){
+		that.tab_settings.text("Configurer");
+	});
+
+	that.lst_items_settings.change(function(){
+		//On récupère l'ID de l'item sélectionné
+		var id = this.find(":selected").val().replace(that.suff_lst_settings,'');
+		if(id == null){
+			that.txt_title.prop('disabled',true); //Titre de l'item ==> input
+			that.lst_parents.prop('disabled',true); //Liste des parents disponibles ==> select
+			that.submit_config.prop('disabled',true); //Valider la config ==> button
+			that.cancel_config.prop('disabled',true); //Reset la config ==> button
+			that.show_item.prop('disabled',true); //La page est visible dans le menu ==> checkbox
+			that.edit_parent.prop('disabled',true); //Configurer le parent ===> button
+			that.txt_url.prop('disabled',true); //L'URL de la page ===> input
+		}
+		else{
+			
+			that.txt_title.prop('disabled',true); //Titre de l'item ==> input
+			that.lst_parents.prop('disabled',true); //Liste des parents disponibles ==> select
+			that.submit_config.prop('disabled',true); //Valider la config ==> button
+			that.cancel_config.prop('disabled',true); //Reset la config ==> button
+			that.show_item.prop('disabled',true); //La page est visible dans le menu ==> checkbox
+			that.edit_parent.prop('disabled',true); //Configurer le parent ===> button
+			that.txt_url.prop('disabled',true); //L'URL de la page ===> input
+		}
+	});
 };
 
