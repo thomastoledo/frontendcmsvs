@@ -79,16 +79,35 @@ function Menu(){
 		if(!(item instanceof Item))
 			return res;
 
+
+		//Si le parent est undefined, on considère que c'est le menu
+		if(typeof parent == "undefined"){
+			parent = that;
+		}
+
+		//Si l'item a déjà un parent qui est le même que "parent"
+		//on n'a pas besoin d'effectuer d'insertion
+		if(item.get_parent() == parent){
+			res = true;
+			return res;
+		}
+
+		//Ensuite il faut le supprimer de son parent courant
+		if(item.get_parent() != null){
+			item.get_parent().remove_item(item);
+		}
+
 		//si le parent est null, l'item est à la racine
 		if((parent == null) || (parent == that)){
 			that.children.push(item);
-			item.parent = null;
+			item.parent = that;
 			//On met l'ordre de l'item à jour
 			item.ordre = that.children.length-1;
 			res = true;
 		}else{
 			//Si le parent n'est pas null, il faut que ce soit une instance d'Item
 			if(parent instanceof Item){
+
 				parent.push(item);
 				//On met l'ordre de l'item à jour
 				item.ordre = that.children.length-1;
@@ -108,6 +127,15 @@ function Menu(){
 
 	}
 
+	that.remove_item = function(key){
+		var i;
+		for(i=0; i<that.get_nb_children() && that.get_at(i).key != key; ++i);
+		for(;i<that.get_nb_children()-1; ++i){
+			that.children[i] = that.children[i+1];
+		}
+		that.pop();
+	}
+
 	that.pop = function(){
 		return that.children.pop();
 	}
@@ -116,6 +144,9 @@ function Menu(){
 		var i = 0;
 		var k = null;
 
+		if(that.key == key)
+			return that;
+		
 		//Pour tout enfant
 		for(; i < that.children.length; i++){
 

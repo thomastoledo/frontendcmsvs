@@ -71,12 +71,27 @@ function Item(){
 	that.push = function(item){
 		if(!(item instanceof Item) || (that.parent == item))
 			return false;
+
+		//On enlève l'item de son ancien parent s'il existe
+		if(item.parent != null){
+			item.parent.remove_item(item.key);
+		}
+
 		that.children.push(item);
 		item.parent = that;
 
 		//On met l'ordre de l'item à jour
 		item.ordre = that.children.length-1;
 		return true;
+	}
+
+	that.remove_item = function(key){
+		var i;
+		for(i=0; i<that.get_nb_children() && that.get_at(i).key != key; ++i);
+		for(;i<that.get_nb_children()-1; ++i){
+			that.children[i] = that.children[i+1];
+		}
+		that.pop();
 	}
 
 	that.pop = function(){
@@ -87,6 +102,9 @@ function Item(){
 		var i = 0;
 		var k = null;
 
+		//Si ce qu'on cherche c'est l'objet lui-même on le retourne
+		if(that.key == key)
+			return that;
 		//Pour tout enfant
 		for(; i < that.children.length; i++){
 
@@ -143,7 +161,7 @@ function Item(){
 		json.visible = that.visible;
 		json.url = that.url;
 
-		if(that.parent != null)
+		if(that.parent instanceof Item)
 			json.parent = that.parent.get_key();
 		else
 			json.parent = -1;
